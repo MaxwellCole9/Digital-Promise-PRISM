@@ -1,4 +1,4 @@
-<p align="center" style="background-color: white; padding: 10px; border-radius: 8px; display: inline-block;">
+<p align="center">
   <img src="assets/prism-logo-blue.png" alt="PRISM Logo" width="400"/>
 </p>
 
