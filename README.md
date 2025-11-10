@@ -1,13 +1,6 @@
-<p align="center">
+<p align="center" style="background-color: white; padding: 10px; border-radius: 8px; display: inline-block;">
   <img src="assets/prism-logo-blue.png" alt="PRISM Logo" width="400"/>
 </p>
-
-<h1 align="center">PRISM – Pipeline for Research Insights & Shared Meaning</h1>
-
-<p align="center">
-  <em>Automated AI-powered system for research paper extraction, summarization, and structured analysis</em>
-</p>
-
 
 # PRISM – AI Research Paper Processor
 
