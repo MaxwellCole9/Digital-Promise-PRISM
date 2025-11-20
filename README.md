@@ -189,7 +189,6 @@ All configurations follow [PEP 517/518](https://peps.python.org/pep-0517/) via `
 | `airtable_client.py` | Airtable record I/O |
 | `status.py` | Console display and token logging |
 | `config/field_definitions.yaml` | Prompt and field definitions |
-| `config/msi_list.csv` | List of MSI institutions (optional) |
 
 ---
 
