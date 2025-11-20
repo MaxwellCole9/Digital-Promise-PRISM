@@ -1,0 +1,40 @@
+[build-system]
+requires = ["setuptools>=61", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "prism"
+version = "0.1.0"
+description = "AI Research Paper Processor"
+readme = "README.md"
+requires-python = ">=3.10"
+dependencies = [
+    "requests",
+    "PyYAML",
+    "python-dotenv",
+    "PyMuPDF",
+    "openai",
+    "rich",
+    "readchar",
+    "flask",
+    "pandas",
+    "gunicorn",
+]
+
+[project.optional-dependencies]
+dev = ["black", "flake8", "pytest"]
+
+[project.scripts]
+prism = "prism.main:main"
+
+[tool.black]
+line-length = 88
+target-version = ["py310"]
+
+[tool.flake8]
+max-line-length = 88
+extend-ignore = ["E203", "W503"]
+
+[tool.pytest.ini_options]
+addopts = "-ra"
+testpaths = ["tests"]

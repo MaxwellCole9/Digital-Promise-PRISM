@@ -1,0 +1,179 @@
+# field_definitions.yaml
+#
+# PRISM Field Extraction Configuration
+#
+# This file defines the full configuration for extracting structured fields from
+# research papers using the PRISM pipeline. It controls:
+#   - How prompts are grouped into batches
+#   - How each field is prompted
+#   - Which section of the paper each batch draws its text from
+#
+# Batches:
+#   Batches group related fields so they can be extracted together in a single LLM call.
+#   Each batch specifies a context_scope (e.g., pre_intro, abstract, main_body) that
+#   determines which section of the paper is used as input text.
+#
+# Fields:
+#   Each field corresponds to a column in Airtable and must specify:
+#     - name: the exact Airtable field name
+#     - enabled: true/false
+#     - prompt: the instruction given to the LLM
+#     - batch: (optional) which batch it belongs to
+#     - context_scope: required only for fields not assigned to a batch
+#
+# Extraction rules:
+#   - Fields inside a batch share one combined LLM call using that batch’s context_scope.
+#   - Fields outside any batch run as single-prompt extractions using their own context_scope.
+#   - Fields listed in auto_fields (in the Python config) bypass the LLM entirely and are
+#     filled directly from extracted sections or metadata.
+#
+# All prompts must produce clean, direct outputs with no explanation unless specified.
+#
+# --- CONFIGURATION STARTS BELOW ---
+
+fields:
+  - name: Study Short Name
+    enabled: true
+    type: short
+    prompt: |
+      Study Short Name: Return only the last name of the first author, followed by "et al." if there is more than one author, then a comma and the four-digit publication year (e.g., "Nguyen et al., 2023"). If there is only one author, omit "et al." and use only their last name followed by the year (e.g., "Pyae, 2024"). Do not include initials, middle names, extra punctuation, or explanation.
+    batch: metadata_batch
+
+  - name: Author(s)
+    enabled: true
+    type: short
+    prompt: |
+      Author(s): All authors in the format: LastName, F., M., ..., using commas and an ampersand (&) before the final author. If not found, return "Unknown".
+    batch: metadata_batch
+
+  - name: Pub Year
+    enabled: true
+    type: short
+    prompt: |
+      Pub Year: Four-digit publication year (e.g., 2024). Return only the year or "Unknown".
+    batch: metadata_batch
+      
+  - name: Geography of Impact
+    enabled: true
+    type: short
+    prompt: |
+      Geography of Impact: Geographic location most relevant to the research. Use country, region, or "Not reported" if not available.
+    batch: metadata_batch
+
+  - name: Title
+    enabled: true
+    type: short
+    prompt: |
+      Title: The exact title of the research paper as it appears in the document. If not found, return "Unknown". Normalize the title if it is in all capital letters.
+    batch: metadata_batch
+
+  - name: First Author Org
+    enabled: true
+    type: short
+    prompt: |
+      First Author Org: Top-level university or institution affiliated with the first author. If not stated, return "Unknown".
+    batch: metadata_batch
+
+  - name: Dept/Research Lab (of First Author)
+    enabled: true
+    type: short
+    prompt: |
+      Dept/Research Lab (of First Author): Department, school, or academic unit of the first author. Return only department name or "Unknown".
+    batch: metadata_batch
+
+  - name: "Source/Publication Outlet"
+    enabled: true
+    type: short
+    prompt: |
+      Source/Publication Outlet: Publication outlet (journal, conference, or repository). If not mentioned, return "Unknown".
+    batch: metadata_batch
+
+  - name: Main Beneficiary  
+    enabled: true
+    type: short
+    prompt: |  
+      Main Beneficiary: The single primary group (students, faculty/instructors, administrators, researchers, policymakers, other) that receives the most direct and explicit benefit.
+    batch: semantic_batch
+
+  - name: Main Outcome Statement
+    enabled: true
+    type: long
+    prompt: |
+      Main Outcome Statement: In one sentence, state the main result or outcome of the study, explicitly connecting what the study investigated with what was found. Use only information from the provided text.
+    batch: outcomes_batch
+
+  - name: Findings/Outcomes
+    enabled: true
+    type: long
+    prompt: |
+      Findings/Outcomes: Produce 3–4 bullet points (each starting with "- ") summarizing study context (first bullet) and key findings. Use neutral tone, no inference or redundancy; end each with a period.
+    batch: outcomes_batch
+
+  - name: Abstract
+    enabled: true
+    type: long
+    prompt: |
+      Abstract: Please extract the abstract section of the research paper. If no abstract is present, respond with "Not Represented".
+    batch: abstract_batch
+
+  - name: Paper Type
+    enabled: true
+    type: short
+    prompt: |
+      Paper Type: Classify the paper using **only one** of the following exact labels. Use study design and content to decide. Return only the label, no explanation.
+
+      - Experimental study: Includes RCTs or QEDs comparing a treatment/intervention group to a control or business-as-usual group.
+      - Research study: Any other empirical study analyzing collected data (e.g., case studies).
+      - Position paper: Describes the authors’ stance, opinion, or argument without empirical data.
+      - Review paper: Summarizes or synthesizes existing literature (e.g., literature reviews, systematic reviews, meta-analyses).
+      - Curriculum/Program development: Describes redesign or creation of courses, curricula, or instructional programs.
+    batch: semantic_batch
+
+  - name: Evidence Tier
+    enabled: true
+    type: short
+    prompt: |
+      Evidence Tier: "Strong", "Moderate", or "Low" based on study design.
+    batch: semantic_batch
+
+  - name: Bias/Equity Concerns
+    enabled: true
+    type: short
+    prompt: |
+      Bias/Equity Concerns: "Acknowledged" if bias, equity, or inclusion are discussed, otherwise "Not reported".
+    batch: semantic_batch
+
+  - name: AI Model(s)
+    enabled: true
+    type: short
+    prompt: |
+      AI Model(s): Return the full names of any specific AI or machine learning models explicitly mentioned in the study (e.g., "GPT-3", "BERT", "ResNet", "XGBoost"). Do not return general terms like "LLM", "machine learning", or "deep learning". If no specific model name is stated, return "Not specified". Respond with a comma-separated list if more than one model is used.
+    batch: semantic_batch
+  
+  - name: Funding Source/Sponsorship
+    enabled: true
+    type: short
+    prompt: |
+      Funding Source/Sponsorship: If the paper states "No funding received", return exactly that. If not mentioned, return "Not reported". If present, return only a comma-separated list of sponsors or agencies.
+    batch: semantic_batch
+
+  - name: Open Access
+    enabled: true
+    type: short
+    prompt: |
+      Open Access: Based on the license or access statements in the document and the metadata preamble above, return only "Yes" if the paper is openly accessible or "No" if it is not. Do not include explanation.
+    batch: metadata_batch
+
+  - name: DOI/URL
+    enabled: true
+    type: short
+    prompt: |
+      DOI/URL: If an arXiv or DOI ID is present, return its canonical URL (e.g. https://arxiv.org/abs/…); otherwise, if a DOI is found return it as https://doi.org/…; if neither, return “N/A”. Respond with one line only.
+    batch: metadata_batch
+
+  - name: Discipline
+    enabled: true
+    type: short
+    prompt: |
+      Discipline: Return the primary academic discipline reflected in the study. Use the study’s focus, methods, terminology, and author affiliation to determine the field. If the discipline cannot be determined, return "N/A". Respond with one line only.
+    batch: metadata_batch
